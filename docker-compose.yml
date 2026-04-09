@@ -15,15 +15,43 @@ services:
       timeout: 5s
       retries: 5
 
+  qwen-code-api:
+    image: qwen-code-api-qwen-code-api
+    container_name: ttmm-qwen-code-api
+    environment:
+      QWEN_CODE_API_KEY: my-secret-qwen-key
+      QWEN_CODE_AUTH_USE: "true"
+      DEFAULT_MODEL: coder-model
+      MAX_RETRIES: "4"
+      RETRY_DELAY_MS: "900"
+      LOG_LEVEL: error
+      LOG_REQUESTS: "true"
+      ADDRESS: 0.0.0.0
+      PORT: "8080"
+    ports:
+      - "42005:8080"
+    volumes:
+      - ${HOME}/.qwen:/mnt/qwen-creds
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/health')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
   app:
     build: .
     container_name: ttmm-app
     env_file:
       - .env.secret
+    environment:
+      LLM_BASE_URL: http://qwen-code-api:8080/v1
     ports:
       - "8000:8000"
     depends_on:
       db:
+        condition: service_healthy
+      qwen-code-api:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]

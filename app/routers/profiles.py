@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app import crud
 from app.schemas import ProfileCreate, ProfileUpdate, ProfilePublic
+from llm.chat import moderate_content
 import uuid
 import traceback
 
@@ -18,7 +19,16 @@ async def cleanup_past_slots(db: AsyncSession = Depends(get_db)):
 
 @router.post("/profiles", response_model=ProfilePublic, status_code=status.HTTP_201_CREATED)
 async def create_profile(profile: ProfileCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new player profile."""
+    """Create a new player profile (with LLM content moderation)."""
+    # Combine fields for moderation check
+    text_to_check = f"{profile.name} {profile.additional_info or ''}".strip()
+    if text_to_check:
+        is_safe, reason = await moderate_content(text_to_check)
+        if not is_safe:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Profile content not acceptable: {reason}"
+            )
     return await crud.create_profile(db, profile)
 
 
@@ -45,10 +55,31 @@ async def update_profile(
     updates: ProfileUpdate,
     db: AsyncSession = Depends(get_db)
 ):
-    """Update a profile."""
+    """Update a profile (with LLM content moderation on name and additional_info)."""
     update_data = updates.model_dump(exclude_unset=True)
     if not update_data:
         raise HTTPException(status_code=400, detail="No updates provided")
+
+    # Moderate text fields that are being updated
+    text_fields = []
+    if "name" in update_data and update_data["name"]:
+        text_fields.append(str(update_data["name"]))
+    if "additional_info" in update_data and update_data["additional_info"]:
+        # Only moderate if it's a string (dict = OAuth metadata, skip)
+        ai = update_data["additional_info"]
+        if isinstance(ai, str):
+            text_fields.append(ai)
+        elif isinstance(ai, dict) and ai.get("about_text"):
+            text_fields.append(ai["about_text"])
+
+    if text_fields:
+        text_to_check = " ".join(text_fields)
+        is_safe, reason = await moderate_content(text_to_check)
+        if not is_safe:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Profile content not acceptable: {reason}"
+            )
 
     try:
         profile = await crud.update_profile(db, profile_id, update_data)

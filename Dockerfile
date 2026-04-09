@@ -11,11 +11,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY app/ ./app/
+COPY llm/ ./llm/
 COPY frontend/ ./frontend/
 COPY sql/ ./sql/
 
-# Database configuration
-ENV DATABASE_URL=postgresql+asyncpg://ttmm_user:ttmm_password@db:5432/ttmm_database
+# Load .env at runtime, but set sensible defaults
+ENV USE_LLM=false \
+    LLM_BASE_URL=http://localhost:42005/v1 \
+    LLM_MODEL=coder-model \
+    LLM_API_KEY=not-needed \
+    DATABASE_URL=postgresql+asyncpg://ttmm_user:ttmm_password@db:5432/ttmm_database
 
 EXPOSE 8000
 

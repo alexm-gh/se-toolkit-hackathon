@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from starlette.middleware.sessions import SessionMiddleware
 from app.database import engine, init_db
 from app.routers import profiles, match_requests, auth
+from llm.chat import router as agent_router
 import os
 
 app = FastAPI(
@@ -43,4 +44,5 @@ async def serve_frontend():
 
 app.include_router(profiles.router)
 app.include_router(match_requests.router)
+app.include_router(agent_router)
 app.include_router(auth.router)

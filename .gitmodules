@@ -1,0 +1,3 @@
+[submodule "qwen-code-api"]
+	path = qwen-code-api
+	url = https://github.com/inno-se-toolkit/qwen-code-api
