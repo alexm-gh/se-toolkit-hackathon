@@ -1,6 +1,6 @@
 # Table Tennis Match Matcher (TTMM)
 
-> Stop spamming all chats and find your perfect table tennis partner instantly
+> *Stop spamming all chats and find your perfect table tennis partner instantly*
 
 ## Demo
 
@@ -53,12 +53,12 @@ TTMM provides a streamlined platform where players can:
 
 | Feature | Planned |
 |---------|---------|
-| Real-time notifications | WebSocket or push notifications for new requests |
-| OAuth for other providers | Innopolis and Telegram authentication systems are the objects of the interest |
-| Telegram bot | Interaction with app via Telegram chat |
-| Match history & statistics | Track past matches and player statistics |
-| Rating system | Elo-based player rating after each match |
-| Theme support | Add dark theme for the app |
+| *Real-time notifications* | WebSocket or push notifications for new requests |
+| *OAuth for other providers* | Innopolis and Telegram authentication systems are the objects of the interest |
+| *Telegram bot* | Interaction with app via Telegram chat |
+| *Match history & statistics* | Track past matches and player statistics |
+| *Rating system* | Elo-based player rating after each match |
+| *Theme support* | Add dark theme for the app |
 
 ## Usage
 
