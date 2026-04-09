@@ -4,13 +4,11 @@
 
 ## Demo
 
-![Players Page - Card View](https://via.placeholder.com/800x450/4A90D9/FFFFFF?text=TTMM+-+Players+Card+View)
+![Players Page - Card View](screenshots/app1.png)
 *Players page with card view — browse all registered players and send match requests*
 
-![Agent Chat](https://via.placeholder.com/800x450/4A90D9/FFFFFF?text=TTMM+-+AI+Agent+Chat)
-*LLM-powered Agent chat — interact with the system using natural language*
-
-> **Note:** Replace placeholder screenshots with actual product screenshots after deployment.
+![Match Requests](screenshots/app2.png)
+*Match requests page with status tracking and contact sharing*
 
 ## Product Context
 
