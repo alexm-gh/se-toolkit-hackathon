@@ -78,3 +78,21 @@ body {
     color: white;
     border-color: #198754;
 }
+
+/* Contacts modal — prevent overflow for long emails/contacts */
+.contacts-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.contact-item {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}

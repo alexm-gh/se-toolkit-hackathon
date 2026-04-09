@@ -957,21 +957,18 @@ async function inlineShowContacts(requestId) {
         const existingModal = bootstrap.Modal.getInstance(contactsModalEl);
         if (existingModal) existingModal.dispose();
 
+        // Determine the other person's info
+        const isSender = data.sender_id === myProfileId;
+        const otherName = isSender ? data.receiver_name : data.sender_name;
+        const otherContact = isSender ? data.receiver_contact : data.sender_contact;
+
         const body = document.getElementById("contacts-modal-body");
         body.innerHTML = `
-            <div class="row">
-                <div class="col-6">
-                    <h6>${data.sender_name}</h6>
-                    <ul class="list-unstyled">
-                        ${Object.entries(data.sender_contact).map(([k,v]) => `<li><strong>${k}:</strong> ${v}</li>`).join("") || '<li class="text-muted">No contacts</li>'}
-                    </ul>
-                </div>
-                <div class="col-6">
-                    <h6>${data.receiver_name}</h6>
-                    <ul class="list-unstyled">
-                        ${Object.entries(data.receiver_contact).map(([k,v]) => `<li><strong>${k}:</strong> ${v}</li>`).join("") || '<li class="text-muted">No contacts</li>'}
-                    </ul>
-                </div>
+            <div class="text-center">
+                <h6><i class="bi bi-person-circle"></i> ${otherName}</h6>
+                <ul class="list-unstyled contacts-list">
+                    ${Object.entries(otherContact).map(([k,v]) => `<li class="contact-item"><strong>${k}:</strong> <span class="text-break">${v}</span></li>`).join("") || '<li class="text-muted">No contacts</li>'}
+                </ul>
             </div>
         `;
         setTimeout(() => new bootstrap.Modal(contactsModalEl).show(), 400);
@@ -1642,21 +1639,18 @@ async function respondToRequest(requestId, approved) {
 async function showContacts(requestId) {
     try {
         const data = await apiGet(`/match-requests/${requestId}/contacts?user_id=${myProfileId}`);
+        // Determine the other person's info
+        const isSender = data.sender_id === myProfileId;
+        const otherName = isSender ? data.receiver_name : data.sender_name;
+        const otherContact = isSender ? data.receiver_contact : data.sender_contact;
+
         const body = document.getElementById("contacts-modal-body");
         body.innerHTML = `
-            <div class="row">
-                <div class="col-6">
-                    <h6>${data.sender_name}</h6>
-                    <ul class="list-unstyled">
-                        ${Object.entries(data.sender_contact).map(([k,v]) => `<li><strong>${k}:</strong> ${v}</li>`).join("") || '<li class="text-muted">No contacts</li>'}
-                    </ul>
-                </div>
-                <div class="col-6">
-                    <h6>${data.receiver_name}</h6>
-                    <ul class="list-unstyled">
-                        ${Object.entries(data.receiver_contact).map(([k,v]) => `<li><strong>${k}:</strong> ${v}</li>`).join("") || '<li class="text-muted">No contacts</li>'}
-                    </ul>
-                </div>
+            <div class="text-center">
+                <h6><i class="bi bi-person-circle"></i> ${otherName}</h6>
+                <ul class="list-unstyled contacts-list">
+                    ${Object.entries(otherContact).map(([k,v]) => `<li class="contact-item"><strong>${k}:</strong> <span class="text-break">${v}</span></li>`).join("") || '<li class="text-muted">No contacts</li>'}
+                </ul>
             </div>
         `;
         new bootstrap.Modal(document.getElementById("contactsModal")).show();
@@ -1734,6 +1728,7 @@ async function openProfileModal(profileId) {
         body.innerHTML = html;
 
         // Update footer button based on request state
+        // Only show action buttons if NOT viewing own profile
         if (!isMe && myProfileId) {
             const state = getRequestState(profile.id);
             const footer = document.querySelector("#profileModal .modal-footer");
@@ -1773,6 +1768,10 @@ async function openProfileModal(profileId) {
                     break;
             }
             footer.appendChild(actionBtn);
+        } else {
+            // Viewing own profile — remove action button
+            const old = document.getElementById("profile-modal-action");
+            if (old) old.remove();
         }
     } catch (err) {
         body.innerHTML = `<div class="alert alert-danger">Failed to load profile: ${err.message}</div>`;
