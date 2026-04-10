@@ -1,0 +1,31 @@
+{
+    "places": [
+        "4th dorm",
+        "Sport complex",
+        "Popova Technopark"
+    ],
+    "contact_types": [
+        "Telegram",
+        "WhatsApp",
+        "Phone",
+        "Email"
+    ],
+    "levels": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "professional"
+    ],
+    "preferences": {
+        "game_modes": [
+            "Solo (1v1)",
+            "Doubles (2v2)",
+            "Training"
+        ],
+        "time_commitment": [
+            "Quick (<1h)",
+            "Regular (1-2h)",
+            "Long (2h+)"
+        ]
+    }
+}

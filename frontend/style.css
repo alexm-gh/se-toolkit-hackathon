@@ -1,0 +1,98 @@
+:root {
+    --bs-primary: #0d6efd;
+    --card-hover: #f8f9fa;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+.page {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.profile-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.profile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.time-slot, .contact-field, .additional-field {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+.request-card {
+    border-left: 4px solid var(--bs-primary);
+}
+
+.request-card.approved {
+    border-left-color: #198754;
+}
+
+.request-card.declined {
+    border-left-color: #dc3545;
+}
+
+.request-card.pending {
+    border-left-color: #ffc107;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.level-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+}
+
+.level-beginner { background-color: #6c757d; color: white; }
+.level-intermediate { background-color: #0d6efd; color: white; }
+.level-advanced { background-color: #fd7e14; color: white; }
+.level-professional { background-color: #dc3545; color: white; }
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+.sortable:hover {
+    background-color: #e9ecef;
+}
+
+#find-matches-btn.active {
+    background-color: #198754;
+    color: white;
+    border-color: #198754;
+}
+
+/* Contacts modal — prevent overflow for long emails/contacts */
+.contacts-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.contact-item {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
