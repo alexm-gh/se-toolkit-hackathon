@@ -5,10 +5,10 @@
 ## Demo
 
 ![Players Page - Card View](screenshots/app1.png)
-*Players page with card view — browse all registered players and send match requests*
+*Players page with all registered players*
 
-![Match Requests](screenshots/app2.png)
-*Match requests page with status tracking and contact sharing*
+![Profile window](screenshots/app2.png)
+*Profile information above players page*
 
 ## Product Context
 
@@ -64,7 +64,7 @@ TTMM provides a streamlined platform where players can:
 
 ### Web Interface
 
-1. Open **http://localhost:8000/app** in your browser
+1. Open **http://10.93.24.208:8000/app** in your browser
 2. **Sign in** with Google (top-right corner) to access full features
 3. **Create your profile** — click "My Profile" and fill in your details
 4. **Find partners** — browse the Players page, use filters, or click "Find Matches"
@@ -72,6 +72,8 @@ TTMM provides a streamlined platform where players can:
 6. **Manage requests** — go to the Requests tab to approve or decline incoming requests
 7. **Get contacts** — once both parties approve, click "View Contacts" to exchange details
 8. **Chat with Agent** — use the Agent tab to interact with the system via natural language
+
+
 
 ### API Endpoints
 
@@ -199,38 +201,60 @@ Without LLM, the Agent falls back to rule-based pattern matching.
 
 ```
 se-toolkit-hackathon/
-├── app/
-│   ├── main.py                 # FastAPI application entry point
-│   ├── database.py             # Async SQLAlchemy engine setup
-│   ├── models.py               # SQLAlchemy ORM models
-│   ├── schemas.py              # Pydantic request/response schemas
-│   ├── crud.py                 # Database CRUD operations
-│   ├── auth.py                 # Google OAuth + JWT authentication
+├── app/                              # Main application container
+│   ├── main.py                       # FastAPI application entry point
+│   ├── database.py                   # Async SQLAlchemy engine setup
+│   ├── models.py                     # SQLAlchemy ORM models
+│   ├── schemas.py                    # Pydantic request/response schemas
+│   ├── crud.py                       # Database CRUD operations
+│   ├── auth.py                       # Google OAuth + JWT authentication
 │   └── routers/
-│       ├── profiles.py         # Profile endpoints + content moderation
-│       ├── match_requests.py   # Match request endpoints
-│       └── auth.py             # OAuth login/callback/logout
-├── llm/
-│   ├── chat.py                 # LLM agent endpoint
-│   ├── tools.py                # Agent tool definitions & handlers
-│   └── prompt.py               # System prompt builder
+│       ├── profiles.py               # Profile endpoints + content moderation
+│       ├── match_requests.py         # Match request endpoints
+│       ├── auth.py                   # OAuth login/callback/logout
+│       └── llm_proxy.py              # Proxy to llm-agent service
+├── llm/                              # LLM agent container
+│   ├── main.py                       # LLM agent entry point
+│   ├── chat.py                       # LLM chat endpoint + moderation
+│   ├── tools.py                      # Agent tool definitions & handlers
+│   └── prompt.py                     # System prompt builder
 ├── frontend/
-│   ├── index.html              # Single-page application (Bootstrap 5)
-│   ├── app.js                  # Client-side logic (~2100 lines)
-│   ├── style.css               # Custom styles
-│   └── defaults.json           # Configurable defaults
-├── qwen-code-api/              # LLM proxy (git submodule)
+│   ├── index.html                    # Single-page application (Bootstrap 5)
+│   ├── app.js                        # Client-side logic (~2100 lines)
+│   ├── style.css                     # Custom styles
+│   └── defaults.json                 # Configurable defaults
+├── qwen-code-api/                    # LLM proxy (git submodule)
 ├── sql/
-│   └── init.sql                # Database initialization script
+│   └── init.sql                      # Database initialization script
 ├── tests/
-│   ├── test_api.py             # API integration tests
-│   └── test_llm.py             # LLM endpoint tests
-├── docker-compose.yml          # Multi-service orchestration
-├── Dockerfile                  # Application container
-├── requirements.txt            # Python dependencies
-├── .env.example                # Environment variable template
-└── README.md                   # This file
+│   ├── test_api.py                   # API integration tests
+│   ├── test_llm.py                   # LLM endpoint tests
+│   └── populate-db.py                # Demo data population script
+├── docker-compose.yml                # 4-service orchestration
+├── Dockerfile                        # App container
+├── llm/Dockerfile                    # LLM agent container
+├── requirements.txt                  # Python dependencies (app)
+├── llm/requirements.txt              # Python dependencies (LLM agent)
+├── .env.example                      # Environment variable template
+└── README.md                         # This file
 ```
+
+## Architecture
+
+```
+┌──────────────────┐     ┌──────────────────┐
+│  app (FastAPI)   │────▶│  llm-agent       │
+│  + Frontend      │     │  + Tool calling  │
+└────────┬─────────┘     └────────┬─────────┘
+         │                        │
+         ▼                        ▼
+┌──────────────────┐     ┌──────────────────┐
+│  postgres        │◀────│  qwen-code-api   │
+│  (PostgreSQL)    │     │  (LLM proxy)     │
+└──────────────────┘     └──────────────────┘
+```
+
+All four services are containerized and orchestrated via `docker-compose.yml`.
 
 ## Running Tests
 
