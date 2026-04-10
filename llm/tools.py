@@ -240,11 +240,14 @@ async def _search_profiles(db, args, user_id):
             slots = p.available_time or []
             matched = False
             for slot in slots:
-                if args.get("day") and slot.get("day", "").lower() != args["day"].lower():
+                slot_day = (slot.get("day") or "").lower() if isinstance(slot, dict) else ""
+                slot_end = slot.get("end_time", "") if isinstance(slot, dict) else ""
+                slot_start = slot.get("start_time", "") if isinstance(slot, dict) else ""
+                if args.get("day") and slot_day != args["day"].lower():
                     continue
-                if args.get("time_from") and slot.get("end_time", "") < args["time_from"]:
+                if args.get("time_from") and slot_end < args["time_from"]:
                     continue
-                if args.get("time_to") and slot.get("start_time", "") > args["time_to"]:
+                if args.get("time_to") and slot_start > args["time_to"]:
                     continue
                 if args.get("day") or args.get("time_from") or args.get("time_to"):
                     matched = True
@@ -269,7 +272,7 @@ async def _search_profiles(db, args, user_id):
         if r["places"]:
             lines.append(f"  Places: {', '.join(r['places'])}")
         if r["available_time"]:
-            times = [f"{s['day']} {s['start_time']}-{s['end_time']}" for s in r["available_time"]]
+            times = [f"{s.get('day') or ''} {s.get('start_time', '')}-{s.get('end_time', '')}" for s in r["available_time"]]
             lines.append(f"  Times: {', '.join(times)}")
         lines.append("")
 

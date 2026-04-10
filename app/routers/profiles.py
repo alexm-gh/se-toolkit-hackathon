@@ -3,11 +3,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app import crud
 from app.schemas import ProfileCreate, ProfileUpdate, ProfilePublic
-from llm.chat import moderate_content
+import os
 import uuid
 import traceback
 
 router = APIRouter(prefix="/api/v1", tags=["profiles"])
+
+LLM_AGENT_URL = os.getenv("LLM_AGENT_URL", "http://llm-agent:8001")
+
+
+async def moderate_content(text: str) -> tuple[bool, str]:
+    """Check if content is appropriate by calling the LLM agent service."""
+    import httpx
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{LLM_AGENT_URL}/api/v1/moderate",
+                json={"text": text},
+                timeout=30.0,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get("is_safe", True), data.get("reason", "")
+    except Exception as e:
+        print(f"Content moderation error: {e}")
+    return True, ""  # Fail open
 
 
 @router.post("/profiles/cleanup", status_code=status.HTTP_200_OK)

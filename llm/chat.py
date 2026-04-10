@@ -343,7 +343,7 @@ async def process_message_llm(message: str, db: AsyncSession, user_id = None, se
             if tool_results:
                 conversations[sid].append({
                     "role": "assistant",
-                    "content": assistant_msg.content,
+                    "content": assistant_msg.content or "",
                     "tool_calls": [tc.model_dump() for tc in assistant_msg.tool_calls],
                 })
                 for tr in tool_results:
@@ -360,6 +360,12 @@ async def process_message_llm(message: str, db: AsyncSession, user_id = None, se
                 final_text = response2.choices[0].message.content or ""
                 conversations[sid].append({"role": "assistant", "content": final_text})
                 return {"text": final_text}
+
+            # Tool calls existed but none executed (all were confirmation-type that got skipped somehow)
+            # This shouldn't happen, but handle gracefully
+            response_text = assistant_msg.content or "Tool call acknowledged."
+            conversations[sid].append({"role": "assistant", "content": response_text})
+            return {"text": response_text}
 
         # No tool calls via OpenAI API — check for raw function call patterns in text
         response_text = assistant_msg.content or ""
@@ -418,6 +424,14 @@ async def process_message_llm(message: str, db: AsyncSession, user_id = None, se
 
 # ─── Routes ───────────────────────────────────────────────────────
 router = APIRouter(prefix="/api/v1", tags=["agent"])
+
+
+@router.post("/moderate")
+async def moderate_endpoint(data: dict):
+    """Content moderation endpoint — called by the main app."""
+    text = data.get("text", "")
+    is_safe, reason = await moderate_content(text)
+    return {"is_safe": is_safe, "reason": reason}
 
 
 @router.post("/chat", response_model=ChatResponse)
